@@ -1,12 +1,12 @@
 // airbnb/app/page.tsx
 "use client";
 
-import Link from "next/link";
 import { usePaginatedQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { PropertyCard } from "@/components/properties/PropertyCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
+import { Navbar } from "@/components/Navbar";
 
 export default function HomePage() {
   const { results, status, loadMore } = usePaginatedQuery(
@@ -16,20 +16,8 @@ export default function HomePage() {
   );
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8">
-      <header className="flex items-center justify-between mb-10">
-        <Link href="/" className="text-2xl font-bold tracking-tight">
-          StayFinder
-        </Link>
-        <div className="flex items-center gap-3">
-          <Link href="/sign-in" className="text-sm font-medium hover:underline">
-            Sign in
-          </Link>
-          <Button asChild size="sm">
-            <Link href="/host/properties/new">Become a host</Link>
-          </Button>
-        </div>
-      </header>
+    <div className="mx-auto max-w-7xl px-4">
+      <Navbar />
 
       <h1 className="text-3xl font-bold mb-8">Find your perfect stay</h1>
 

@@ -21,8 +21,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           proxyUrl={`${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/clerk-proxy`}
           signInUrl="/sign-in"
           signUpUrl="/sign-up"
-          afterSignInUrl="/"
-          afterSignUpUrl="/"
         >
           <ConvexClientProvider>{children}</ConvexClientProvider>
         </ClerkProvider>
