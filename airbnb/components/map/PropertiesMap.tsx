@@ -64,7 +64,14 @@ export function PropertiesMap({
       onMoveEnd={(evt) => captureBounds(evt.target)}
     >
       <NavigationControl position="top-right" />
-      {properties.map((p) => (
+      {properties
+        .filter(
+          (p) =>
+            p.lat >= -90 && p.lat <= 90 &&
+            p.lng >= -180 && p.lng <= 180 &&
+            !(p.lat === 0 && p.lng === 0),
+        )
+        .map((p) => (
         <Marker key={p._id} longitude={p.lng} latitude={p.lat} anchor="bottom">
           <button
             className={`px-2 py-1 rounded-full text-xs font-semibold shadow-md transition-transform cursor-pointer ${
