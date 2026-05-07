@@ -6,7 +6,7 @@ import { UserButton } from "@clerk/nextjs";
 import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { PlusCircle, LayoutList, Plane } from "lucide-react";
+import { PlusCircle, LayoutList, Plane, Search } from "lucide-react";
 
 function AuthenticatedNav() {
   const user = useQuery(api.users.getCurrentUser);
@@ -27,10 +27,10 @@ function AuthenticatedNav() {
         <LayoutList className="h-4 w-4" />
         My listings
       </Link>
-      <Button asChild size="sm" variant="outline">
-        <Link href="/host/properties/new">
+      <Button size="sm" variant="outline" className="cursor-pointer" asChild>
+        <Link href="/host/properties/new" className="flex items-center justify-center">
           <PlusCircle className="h-4 w-4 mr-1.5" />
-          Add listing
+          <span>Add listing</span>
         </Link>
       </Button>
       {user && (
@@ -48,6 +48,13 @@ export function Navbar() {
     <header className="flex items-center justify-between py-4 border-b mb-8">
       <Link href="/" className="text-xl font-bold tracking-tight">
         StayFinder
+      </Link>
+      <Link
+        href="/search"
+        className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+      >
+        <Search className="h-4 w-4" />
+        Explore
       </Link>
 
       <AuthLoading>
