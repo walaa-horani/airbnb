@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { MapPin, Users, BedDouble, Bath, Clock, Star } from "lucide-react";
+import { PropertyMap } from "@/components/map/PropertyMap";
 
 function formatCents(cents: number) {
   return `$${(cents / 100).toFixed(0)}`;
@@ -150,9 +151,16 @@ export function PropertyDetailClient({ property }: { property: Doc<"properties">
 
           <div>
             <h2 className="text-lg font-semibold mb-3">Location</h2>
-            <div className="h-48 rounded-xl bg-muted flex items-center justify-center text-muted-foreground text-sm">
-              Map coming in Phase 3 · {property.city}, {property.country}
-            </div>
+            <p className="text-sm text-muted-foreground mb-3">
+              {property.address}, {property.city}, {property.country}
+            </p>
+            {property.lat !== 0 && property.lng !== 0 ? (
+              <PropertyMap lat={property.lat} lng={property.lng} />
+            ) : (
+              <div className="h-72 rounded-xl bg-muted flex items-center justify-center text-muted-foreground text-sm">
+                {property.city}, {property.country}
+              </div>
+            )}
           </div>
         </div>
 
