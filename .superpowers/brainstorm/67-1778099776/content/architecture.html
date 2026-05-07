@@ -1,0 +1,113 @@
+<h2>Section 1 of 5 — System Architecture</h2>
+<p class="subtitle">How all the pieces connect. Does this look right?</p>
+
+<style>
+.arch { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-top: 16px; }
+.arch-col { display: flex; flex-direction: column; gap: 12px; }
+.arch-col h4 { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #7c7cff; margin: 0 0 4px 0; }
+.arch-box { background: #1a1a2e; border: 1px solid #2d2d4e; border-radius: 10px; padding: 14px; }
+.arch-box.orange { border-color: #ff8c4244; }
+.arch-box.green { border-color: #42ff8c44; }
+.arch-box.blue { border-color: #4288ff44; }
+.arch-box.purple { border-color: #8c42ff44; }
+.arch-box.red { border-color: #ff424244; }
+.arch-box h5 { margin: 0 0 6px 0; font-size: 13px; color: #e2e2ff; }
+.arch-box p { margin: 0; font-size: 12px; color: #888; line-height: 1.5; }
+.arch-box ul { margin: 4px 0 0 0; padding-left: 16px; font-size: 12px; color: #888; line-height: 1.8; }
+.connector { text-align: center; color: #444; font-size: 20px; margin: 4px 0; }
+.flow-arrow { display: flex; align-items: center; justify-content: center; color: #555; font-size: 12px; gap: 6px; margin: 8px 0; }
+.badge { display: inline-block; font-size: 10px; padding: 1px 6px; border-radius: 8px; background: #252545; color: #9999dd; border: 1px solid #3d3d6e; margin-left: 4px; }
+</style>
+
+<div class="arch">
+  <div class="arch-col">
+    <h4>Frontend (Next.js 16)</h4>
+    <div class="arch-box blue">
+      <h5>App Router Pages</h5>
+      <ul>
+        <li>Homepage + Search</li>
+        <li>Property Detail</li>
+        <li>Checkout Flow</li>
+        <li>Guest Trips Hub</li>
+        <li>Host Dashboard</li>
+      </ul>
+    </div>
+    <div class="arch-box blue">
+      <h5>UI Layer</h5>
+      <ul>
+        <li>shadcn/ui components</li>
+        <li>Tailwind CSS v4</li>
+        <li>Mapbox GL JS</li>
+        <li>react-day-picker calendar</li>
+        <li>yet-another-react-lightbox</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="arch-col">
+    <h4>Auth + Backend</h4>
+    <div class="arch-box orange">
+      <h5>Clerk Auth</h5>
+      <ul>
+        <li>Google OAuth + Email</li>
+        <li>Proxy (no middleware)</li>
+        <li>Protected routes via <code>auth()</code></li>
+        <li>Webhook → Convex user sync</li>
+      </ul>
+    </div>
+    <div class="arch-box green">
+      <h5>Convex Backend</h5>
+      <ul>
+        <li>Real-time DB + queries</li>
+        <li>File storage (images)</li>
+        <li>Scheduled actions (refunds)</li>
+        <li>HTTP endpoints (webhooks)</li>
+        <li>Full-text search</li>
+      </ul>
+    </div>
+    <div class="arch-box purple">
+      <h5>Resend (Email)</h5>
+      <ul>
+        <li>React Email templates</li>
+        <li>Booking confirmations</li>
+        <li>Cancellation notices</li>
+        <li>Payout alerts</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="arch-col">
+    <h4>Payments</h4>
+    <div class="arch-box red">
+      <h5>Stripe Connect Express</h5>
+      <ul>
+        <li>Host onboarding flow</li>
+        <li>Payment Intents API</li>
+        <li>5% application fee</li>
+        <li>Auto payouts to hosts</li>
+        <li>Refund API</li>
+        <li>Webhook → booking status</li>
+      </ul>
+    </div>
+    <div class="arch-box red">
+      <h5>PayPal Marketplace</h5>
+      <ul>
+        <li>Orders API v2</li>
+        <li>Partner referral (onboarding)</li>
+        <li>5% platform fee capture</li>
+        <li>Seller payouts</li>
+        <li>Refund API</li>
+        <li>Webhook → booking status</li>
+      </ul>
+    </div>
+    <div class="arch-box">
+      <h5>Third-party Services</h5>
+      <ul>
+        <li>Mapbox (maps + geocoding)</li>
+        <li>Convex File Storage (images)</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<p class="subtitle" style="margin-top:20px;">Does this architecture look right? Any service you'd swap out or add? Let me know in terminal.</p>

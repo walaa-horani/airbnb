@@ -1,0 +1,84 @@
+I want to build an Airbnb clone. i want the users to be able to list properties as well as  make bookings on properties. 
+
+ and they must be able to make payments through Stripe, but we want to use Stripe Connect so that we go ahead and actually strip the platform fee for our platform...
+
+stripe does not support some countries that's why in additional to stripe i want to add paypal...
+
+the users can add , delete , update their hosted properties and bookings.. and users also can cancel the booking ... That means we need all of the flows such as the ability to book a property,
+
+
+--------
+
+here is what you need to apply carefully:
+
+
+for clerk:
+clerk auth via google and email .. and dont ever use middleware file ... always proxy.
+protected routes.
+clerk convex webhook
+
+
+-----
+for convex:
+create , edit , delete properties,
+upload images with cover image and gallery
+pricing, capacity , house rules, check-in times (everything exists in airbnb)...
+seed data for testing purpose (20 property with all related details)
+
+------
+
+search and filters :
+location, date,price, guest search ,type...
+mapbox map with pricing..
+use pagination every 10 property
+
+-----
+
+detail page:
+everything we needed (like airbnb)
+including calender
+location map 
+gallery with lightbox
+pricing 
+
+-----
+
+bookings and payments(stripe connect):
+Host Registration via Stripe Connect Express..
+Smart Date Picker with Availability Logic..
+Detailed Cost Analysis (Rates, Taxes & Service Fees)...
+Direct Payouts to Provider Accounts..
+platform application fee...
+Booking Lifecycle Tracking (From Pending to Finalized)..
+Automated Reversal & Refund System...
+
+-------
+
+Host Management Hub
+Properties & Listings Control.
+Centralized Multi-Unit Calendar
+Income & Payment Tracking
+Stripe Integration Progress.
+Incoming Bookings Queue
+
+------
+Guest Experience Hub
+Travel Timeline (Upcoming, Active, Past)...
+Reservation Overview & Management..
+Saved Favorites & Wishlists..
+
+
+-----
+
+Notifications
+
+Email for bookings, cancellations, messages, payouts..
+use shadcn for design system and install shadCN MCP
+
+
+please take this doc for stripe as reference to get benefit: 
+
+https://docs.stripe.com/projects
+
+and also get benefit of this clerk CLI doc
+https://clerk.com/cli

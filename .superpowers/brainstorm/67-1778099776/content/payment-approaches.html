@@ -1,0 +1,75 @@
+<h2>Payment Architecture Approaches</h2>
+<p class="subtitle">The biggest architectural decision: how deeply to integrate PayPal alongside Stripe Connect</p>
+
+<style>
+.flow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+.flow-box { background: #252545; border: 1px solid #3d3d6e; border-radius: 6px; padding: 5px 10px; font-size: 12px; color: #ccc; white-space: nowrap; }
+.flow-box.highlight { background: #2d3f6e; border-color: #5577cc; color: #aac4ff; }
+.flow-box.warn { background: #3f2d2d; border-color: #cc5555; color: #ffaaaa; }
+.flow-box.green { background: #1a3a2a; border-color: #55aa77; color: #aaffcc; }
+.arrow { color: #555; font-size: 14px; }
+.tag { display: inline-block; font-size: 10px; padding: 2px 7px; border-radius: 10px; margin-left: 6px; vertical-align: middle; }
+.tag.rec { background: #2a4a2a; color: #88ff99; border: 1px solid #55aa55; }
+.tag.complex { background: #4a2a2a; color: #ff9999; border: 1px solid #aa5555; }
+.tag.simple { background: #2a3a4a; color: #99ccff; border: 1px solid #5588aa; }
+.note { font-size: 12px; color: #888; margin-top: 8px; padding-left: 4px; border-left: 2px solid #333; }
+</style>
+
+<div class="options">
+
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Stripe Connect + PayPal Marketplace <span class="tag rec">Recommended</span></h3>
+      <p>Both payment providers run full marketplace flows with automatic host payouts and platform fee capture on both sides.</p>
+      <div class="flow">
+        <div class="flow-box highlight">Guest pays</div><div class="arrow">→</div>
+        <div class="flow-box highlight">Platform holds</div><div class="arrow">→</div>
+        <div class="flow-box green">5% fee kept</div><div class="arrow">→</div>
+        <div class="flow-box green">95% to host</div>
+      </div>
+      <div class="note">Works identically for Stripe and PayPal. Hosts register with Stripe Connect Express AND can receive PayPal payouts. Most professional — exactly how real Airbnb works.</div>
+      <div class="pros-cons" style="margin-top:10px;">
+        <div class="pros"><h4>Pros</h4><ul><li>Automatic payouts on both sides</li><li>Full lifecycle (hold → release or refund)</li><li>Platform fee always captured</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>PayPal Marketplace requires business approval</li><li>More integration complexity</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Stripe Connect + PayPal Simple <span class="tag simple">Simpler</span></h3>
+      <p>Stripe Connect handles the full marketplace flow. PayPal is a basic payment button — platform manually handles fee split and host payout for PayPal bookings.</p>
+      <div class="flow">
+        <div class="flow-box highlight">Stripe → auto split</div><div class="arrow">|</div>
+        <div class="flow-box warn">PayPal → manual payout</div>
+      </div>
+      <div class="note">PayPal payments land in your platform account. You manually transfer 95% to hosts later (or via a cron job). Hosts only need to register Stripe Connect — no PayPal account needed for hosts.</div>
+      <div class="pros-cons" style="margin-top:10px;">
+        <div class="pros"><h4>Pros</h4><ul><li>No PayPal Marketplace approval</li><li>Hosts only need Stripe onboarding</li><li>Faster to build</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>Manual PayPal host payouts</li><li>Platform holds guest money longer</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Stripe Connect Only (PayPal Later) <span class="tag simple">MVP First</span></h3>
+      <p>Ship with Stripe Connect Express only. Add PayPal in a future phase once the core booking flow is stable.</p>
+      <div class="flow">
+        <div class="flow-box highlight">Stripe Connect → full auto</div><div class="arrow">→</div>
+        <div class="flow-box warn">PayPal → Phase 2</div>
+      </div>
+      <div class="note">Reduces scope significantly. Many platforms launch without PayPal and add it later. You specified PayPal as a requirement, so only choose this if timeline is tight.</div>
+      <div class="pros-cons" style="margin-top:10px;">
+        <div class="pros"><h4>Pros</h4><ul><li>Fastest to launch</li><li>Full Stripe flow working day one</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>No PayPal for countries Stripe doesn't support</li><li>Defeats the stated requirement</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<p class="subtitle" style="margin-top:20px;">Click your preferred approach, or just tell me in the terminal.</p>

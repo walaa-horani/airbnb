@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/Walaa/.claude/plugins/cache/claude-plugins-official/superpowers/5.1.0/skills/brainstorming/**)",
+      "Bash(bash \"C:/Users/Walaa/.claude/plugins/cache/claude-plugins-official/superpowers/5.1.0/skills/brainstorming/scripts/start-server.sh\" --project-dir \"c:/dev/airbnb2\")",
+      "Read(//c/Users/Walaa/.claude/plugins/cache/claude-plugins-official/superpowers/5.1.0/skills/subagent-driven-development/**)",
+      "Bash(pnpm list *)",
+      "Bash(npx shadcn@latest init --defaults)",
+      "Bash(npx shadcn@latest add card badge avatar separator skeleton --yes)",
+      "Bash(npx shadcn@latest add dialog form input textarea select checkbox label tabs scroll-area alert-dialog dropdown-menu --yes)",
+      "Bash(grep -E '\\\\.\\(tsx|ts\\)$')",
+      "Bash(npx shadcn@latest add form --yes)",
+      "Read(//c/c/dev/airbnb2/airbnb/components/**)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:ui.shadcn.com)",
+      "WebFetch(domain:github.com)",
+      "Read(//c/Users/Walaa/AppData/Local/Temp/claude/c--dev-airbnb2/08f81347-b30d-4e40-b442-befb3bd72ff2/tasks/**)",
+      "Bash(git -C /c/dev/airbnb2 add airbnb/convex/properties.ts)",
+      "Bash(git -C /c/dev/airbnb2 commit -m ' *)",
+      "Bash(git -C /c/dev/airbnb2 add airbnb/convex/propertyImages.ts)"
+    ]
+  }
+}

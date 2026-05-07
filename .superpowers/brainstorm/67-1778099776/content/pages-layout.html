@@ -1,0 +1,148 @@
+<h2>Section 4 of 5 — Key Page Layouts</h2>
+<p class="subtitle">Wireframe-level layout for the 5 most complex pages. Does the structure feel right?</p>
+
+<style>
+.pages-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 16px; }
+.page-card { background: #141428; border: 1px solid #2d2d4e; border-radius: 12px; overflow: hidden; }
+.page-title { padding: 10px 14px; font-size: 12px; font-weight: 700; color: #aaaaff; border-bottom: 1px solid #2d2d4e; background: #1a1a38; letter-spacing: 0.5px; }
+.page-body { padding: 12px; }
+.wf { background: #0f0f1e; border-radius: 8px; padding: 10px; font-size: 11px; }
+.wf-nav { background: #1a1a38; border-radius: 4px; padding: 5px 8px; color: #7777cc; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+.wf-row { display: flex; gap: 6px; margin-bottom: 6px; }
+.wf-box { background: #1e1e3a; border: 1px solid #2a2a4a; border-radius: 4px; padding: 5px 8px; color: #666; font-size: 10px; flex: 1; }
+.wf-box.accent { background: #1e2d4a; border-color: #2d4a6e; color: #88aadd; }
+.wf-box.map { background: #1a2a1a; border-color: #2a4a2a; color: #88aa88; min-height: 60px; display: flex; align-items: center; justify-content: center; }
+.wf-box.tall { min-height: 50px; }
+.wf-box.img { background: #2a2a2a; border-color: #3a3a3a; color: #666; min-height: 55px; display: flex; align-items: center; justify-content: center; }
+.wf-box.cal { background: #1e2d4a; border-color: #2d4a6e; color: #88aadd; min-height: 70px; display: flex; align-items: center; justify-content: center; }
+.wf-box.cta { background: #ff5a5f33; border-color: #ff5a5f66; color: #ff9a9f; text-align: center; }
+.wf-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin-bottom: 6px; }
+.wf-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+.wf-label { font-size: 9px; color: #444; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px; margin-top: 6px; }
+.wf-sidebar { width: 120px; flex-shrink: 0; }
+.wf-main { flex: 1; }
+.wf-split { display: flex; gap: 6px; }
+</style>
+
+<div class="pages-grid">
+
+  <!-- HOMEPAGE -->
+  <div class="page-card">
+    <div class="page-title">/ — Homepage & Search</div>
+    <div class="page-body">
+      <div class="wf">
+        <div class="wf-nav"><span>Logo</span><span>Sign in | Become a Host</span></div>
+        <div class="wf-row">
+          <div class="wf-box accent tall" style="text-align:center;display:flex;align-items:center;justify-content:center;">🔍 Location | Dates | Guests | Search</div>
+        </div>
+        <div class="wf-label">Category filters (icons)</div>
+        <div class="wf-row">
+          <div class="wf-box">🏠 Houses</div>
+          <div class="wf-box">🏢 Apartments</div>
+          <div class="wf-box">🌊 Beachfront</div>
+          <div class="wf-box">🏔️ Cabins</div>
+          <div class="wf-box">+ more</div>
+        </div>
+        <div class="wf-label">Property grid (10/page) + Map toggle</div>
+        <div class="wf-grid">
+          <div class="wf-box img">📷 Card</div>
+          <div class="wf-box img">📷 Card</div>
+          <div class="wf-box img">📷 Card</div>
+          <div class="wf-box img">📷 Card</div>
+          <div class="wf-box img">📷 Card</div>
+          <div class="wf-box img">📷 Card</div>
+        </div>
+        <div class="wf-box map">🗺️ Mapbox — price pins toggle</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROPERTY DETAIL -->
+  <div class="page-card">
+    <div class="page-title">/properties/[id] — Detail Page</div>
+    <div class="page-body">
+      <div class="wf">
+        <div class="wf-nav"><span>← Back</span><span>❤️ Save | Share</span></div>
+        <div class="wf-box img" style="min-height:60px;">📷 Cover + 4-grid gallery (lightbox on click)</div>
+        <div class="wf-split" style="margin-top:6px;">
+          <div class="wf-main">
+            <div class="wf-box accent" style="margin-bottom:4px;">Title · Location · ⭐ Rating</div>
+            <div class="wf-box" style="margin-bottom:4px;">👥 guests · 🛏 beds · 🚿 baths</div>
+            <div class="wf-box tall" style="margin-bottom:4px;">Description</div>
+            <div class="wf-box" style="margin-bottom:4px;">✨ Amenities grid</div>
+            <div class="wf-box cal">📅 Availability Calendar</div>
+            <div class="wf-box map" style="margin-top:4px;">🗺️ Location map</div>
+          </div>
+          <div class="wf-sidebar">
+            <div class="wf-box accent" style="margin-bottom:4px; text-align:center;">$X / night</div>
+            <div class="wf-box" style="margin-bottom:4px;">Check-in / out</div>
+            <div class="wf-box" style="margin-bottom:4px;">Guests</div>
+            <div class="wf-box cta">Reserve</div>
+            <div class="wf-box" style="margin-top:4px; font-size:9px;">Rate breakdown</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HOST DASHBOARD -->
+  <div class="page-card">
+    <div class="page-title">/host/dashboard — Host Hub</div>
+    <div class="page-body">
+      <div class="wf">
+        <div class="wf-nav"><span>Host Dashboard</span><span>+ Add Property</span></div>
+        <div class="wf-label">Stats overview</div>
+        <div class="wf-grid">
+          <div class="wf-box accent">💰 Earnings</div>
+          <div class="wf-box accent">📅 Bookings</div>
+          <div class="wf-box accent">🏠 Listings</div>
+        </div>
+        <div class="wf-label">Stripe Connect status</div>
+        <div class="wf-box cta" style="margin-bottom:6px;">⚡ Complete Stripe Onboarding</div>
+        <div class="wf-label">Incoming bookings queue</div>
+        <div class="wf-box" style="margin-bottom:4px;">📋 Booking · Guest · Dates · Status</div>
+        <div class="wf-box" style="margin-bottom:4px;">📋 Booking · Guest · Dates · Status</div>
+        <div class="wf-label">Properties list</div>
+        <div class="wf-box" style="margin-bottom:4px;">🏠 Property · Status · Edit | Delete</div>
+        <div class="wf-box" style="margin-bottom:4px;">🏠 Property · Status · Edit | Delete</div>
+        <div class="wf-label">Multi-unit calendar</div>
+        <div class="wf-box cal">📅 All properties calendar view</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GUEST TRIPS HUB -->
+  <div class="page-card">
+    <div class="page-title">/trips — Guest Experience Hub</div>
+    <div class="page-body">
+      <div class="wf">
+        <div class="wf-nav"><span>My Trips</span><span></span></div>
+        <div class="wf-label">Tabs: Upcoming · Active · Past · Cancelled</div>
+        <div class="wf-row">
+          <div class="wf-box accent">Upcoming</div>
+          <div class="wf-box">Active</div>
+          <div class="wf-box">Past</div>
+          <div class="wf-box">Cancelled</div>
+        </div>
+        <div class="wf-split" style="margin-top:6px;">
+          <div class="wf-box img" style="width:80px;flex-shrink:0;">📷</div>
+          <div class="wf-main">
+            <div class="wf-box accent" style="margin-bottom:4px;">Property name</div>
+            <div class="wf-box" style="margin-bottom:4px;">📅 Dates · 👥 Guests</div>
+            <div class="wf-box" style="margin-bottom:4px;">💰 Total paid</div>
+            <div class="wf-box cta">Cancel Booking</div>
+          </div>
+        </div>
+        <div class="wf-label" style="margin-top:8px;">Saved Wishlists</div>
+        <div class="wf-grid">
+          <div class="wf-box img">❤️</div>
+          <div class="wf-box img">❤️</div>
+          <div class="wf-box img">❤️</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<p class="subtitle" style="margin-top:20px;">Do these page layouts feel right? Any section to add or restructure? Tell me in the terminal.</p>

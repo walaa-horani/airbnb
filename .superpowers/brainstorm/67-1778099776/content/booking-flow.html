@@ -1,0 +1,160 @@
+<h2>Section 3 of 5 — Booking & Payment Lifecycle</h2>
+<p class="subtitle">End-to-end flow from date selection to host payout (and refund path)</p>
+
+<style>
+.flow-section { margin-bottom: 28px; }
+.flow-section h3 { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #7c7cff; margin: 0 0 12px 0; }
+.steps { display: flex; flex-direction: column; gap: 0; }
+.step { display: flex; gap: 14px; align-items: flex-start; position: relative; }
+.step:not(:last-child)::after { content: ''; position: absolute; left: 17px; top: 36px; bottom: -8px; width: 2px; background: #2d2d4e; }
+.step-num { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; margin-top: 2px; }
+.step-num.blue { background: #1e2d4a; color: #88bbff; border: 1px solid #2d4a6e; }
+.step-num.green { background: #1e4a2d; color: #88ffbb; border: 1px solid #2d6e4a; }
+.step-num.orange { background: #4a3a1e; color: #ffcc88; border: 1px solid #6e5a2d; }
+.step-num.red { background: #4a1e1e; color: #ff9999; border: 1px solid #6e2d2d; }
+.step-num.purple { background: #2d1e4a; color: #cc88ff; border: 1px solid #4a2d6e; }
+.step-body { padding-bottom: 16px; flex: 1; }
+.step-title { font-size: 13px; color: #e2e2ff; font-weight: 600; margin-bottom: 3px; }
+.step-desc { font-size: 12px; color: #777; line-height: 1.5; }
+.step-tag { display: inline-block; font-size: 10px; padding: 1px 7px; border-radius: 8px; margin-left: 6px; vertical-align: middle; }
+.tag-convex { background: #1e2d4a; color: #88bbff; border: 1px solid #2d4a6e; }
+.tag-stripe { background: #2d1e4a; color: #cc88ff; border: 1px solid #4a2d6e; }
+.tag-paypal { background: #2d2d1e; color: #eecc88; border: 1px solid #6e6e2d; }
+.tag-email { background: #1e3d2d; color: #88ddaa; border: 1px solid #2d6e4a; }
+.split-flows { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.split-col { background: #141428; border: 1px solid #2d2d4e; border-radius: 10px; padding: 14px; }
+.split-col h4 { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 10px 0; }
+.split-col.stripe h4 { color: #cc88ff; }
+.split-col.paypal h4 { color: #eecc88; }
+.cost-box { background: #1a1a2e; border: 1px solid #2d2d4e; border-radius: 8px; padding: 12px 16px; font-size: 12px; color: #888; margin-top: 8px; }
+.cost-row { display: flex; justify-content: space-between; padding: 3px 0; }
+.cost-row.total { color: #e2e2ff; font-weight: 600; border-top: 1px solid #333; margin-top: 4px; padding-top: 6px; }
+.cost-row.fee { color: #ffcc88; }
+.cost-row.payout { color: #88ffbb; }
+</style>
+
+<div class="flow-section">
+  <h3>Phase 1 — Guest Books</h3>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num blue">1</div>
+      <div class="step-body">
+        <div class="step-title">Guest selects dates + guests <span class="step-tag tag-convex">Convex</span></div>
+        <div class="step-desc">Calendar blocks unavailable dates by querying confirmed bookings. Smart picker prevents check-in on checkout day of existing booking.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num blue">2</div>
+      <div class="step-body">
+        <div class="step-title">Cost breakdown calculated</div>
+        <div class="cost-box">
+          <div class="cost-row"><span>Nightly rate × nights</span><span>$X</span></div>
+          <div class="cost-row"><span>Cleaning fee</span><span>$X</span></div>
+          <div class="cost-row fee"><span>Service fee (5% platform)</span><span>$X</span></div>
+          <div class="cost-row total"><span>Total charged to guest</span><span>$X</span></div>
+          <div class="cost-row payout"><span>Host receives (after fee)</span><span>$X</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num blue">3</div>
+      <div class="step-body">
+        <div class="step-title">Guest chooses payment method</div>
+        <div class="step-desc">Stripe card (default) or PayPal. Host must have that payment method connected — if not, only available option is shown.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="flow-section">
+  <h3>Phase 2 — Payment Processing (splits by method)</h3>
+  <div class="split-flows">
+    <div class="split-col stripe">
+      <h4>Stripe Connect Path</h4>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num purple">4a</div>
+          <div class="step-body">
+            <div class="step-title">Payment Intent created <span class="step-tag tag-stripe">Stripe</span></div>
+            <div class="step-desc">Convex action creates PaymentIntent with <code>application_fee_amount</code> (5%) and <code>transfer_data.destination</code> = host's Stripe account.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num purple">5a</div>
+          <div class="step-body">
+            <div class="step-title">Stripe webhook fires <span class="step-tag tag-stripe">Stripe</span><span class="step-tag tag-convex">Convex</span></div>
+            <div class="step-desc"><code>payment_intent.succeeded</code> → booking status → <code>confirmed</code>. Fee auto-split handled by Stripe.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="split-col paypal">
+      <h4>PayPal Marketplace Path</h4>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num orange">4b</div>
+          <div class="step-body">
+            <div class="step-title">Order created <span class="step-tag tag-paypal">PayPal</span></div>
+            <div class="step-desc">Convex action creates Order via Orders API v2 with <code>purchase_units</code> including platform fee and payee = host's PayPal merchant ID.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num orange">5b</div>
+          <div class="step-body">
+            <div class="step-title">PayPal webhook fires <span class="step-tag tag-paypal">PayPal</span><span class="step-tag tag-convex">Convex</span></div>
+            <div class="step-desc"><code>PAYMENT.CAPTURE.COMPLETED</code> → booking status → <code>confirmed</code>.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="flow-section">
+  <h3>Phase 3 — Confirmation & Completion</h3>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num green">6</div>
+      <div class="step-body">
+        <div class="step-title">Emails sent <span class="step-tag tag-email">Resend</span></div>
+        <div class="step-desc">Guest gets booking confirmation. Host gets new booking alert. Both include full details, dates, amounts.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num green">7</div>
+      <div class="step-body">
+        <div class="step-title">Booking completes automatically <span class="step-tag tag-convex">Convex Cron</span></div>
+        <div class="step-desc">Scheduled job runs at midnight after checkout date. Status → <code>completed</code>. Guest can now leave a review.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="flow-section">
+  <h3>Cancellation & Refund Path</h3>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num red">R1</div>
+      <div class="step-body">
+        <div class="step-title">Guest or host cancels <span class="step-tag tag-convex">Convex</span></div>
+        <div class="step-desc">Booking status → <code>cancelled</code>. Records who cancelled and reason.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num red">R2</div>
+      <div class="step-body">
+        <div class="step-title">Refund triggered automatically</div>
+        <div class="step-desc">Stripe: <code>refunds.create</code> on the PaymentIntent. PayPal: <code>capture.refund</code> on the capture ID. Full refund issued immediately.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num red">R3</div>
+      <div class="step-body">
+        <div class="step-title">Cancellation emails sent <span class="step-tag tag-email">Resend</span></div>
+        <div class="step-desc">Both guest and host notified with refund details and timeline.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p class="subtitle" style="margin-top: 8px;">Does this booking lifecycle look right? Any edge cases to handle differently?</p>

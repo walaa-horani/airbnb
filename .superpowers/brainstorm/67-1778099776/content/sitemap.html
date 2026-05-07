@@ -1,0 +1,76 @@
+<h2>Proposed App Route Structure</h2>
+<p class="subtitle">Does this match what you have in mind? Flag anything missing or wrong.</p>
+
+<style>
+.sitemap { display: flex; flex-direction: column; gap: 24px; margin-top: 16px; }
+.sm-group { background: #1a1a2e; border: 1px solid #2d2d4e; border-radius: 12px; padding: 20px; }
+.sm-group h3 { margin: 0 0 12px 0; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: #7c7cff; }
+.sm-routes { display: flex; flex-wrap: wrap; gap: 8px; }
+.sm-route { background: #252545; border: 1px solid #3d3d6e; border-radius: 8px; padding: 8px 14px; font-size: 13px; font-family: monospace; color: #e2e2ff; }
+.sm-route.protected { border-color: #ff6b6b44; color: #ff9999; }
+.sm-route.public { border-color: #6bff9944; color: #99ffbb; }
+.legend { display: flex; gap: 20px; margin-bottom: 16px; font-size: 12px; }
+.legend-item { display: flex; align-items: center; gap: 6px; }
+.dot { width: 10px; height: 10px; border-radius: 50%; }
+.dot.pub { background: #6bff99; }
+.dot.prot { background: #ff6b6b; }
+</style>
+
+<div class="legend">
+  <div class="legend-item"><div class="dot pub"></div><span style="color:#99ffbb">Public</span></div>
+  <div class="legend-item"><div class="dot prot"></div><span style="color:#ff9999">Protected (auth required)</span></div>
+</div>
+
+<div class="sitemap">
+
+  <div class="sm-group">
+    <h3>Public Pages</h3>
+    <div class="sm-routes">
+      <div class="sm-route public">/</div>
+      <div class="sm-route public">/properties/[id]</div>
+      <div class="sm-route public">/search</div>
+      <div class="sm-route public">/sign-in</div>
+      <div class="sm-route public">/sign-up</div>
+    </div>
+  </div>
+
+  <div class="sm-group">
+    <h3>Guest Experience Hub</h3>
+    <div class="sm-routes">
+      <div class="sm-route protected">/trips</div>
+      <div class="sm-route protected">/trips/[bookingId]</div>
+      <div class="sm-route protected">/wishlist</div>
+      <div class="sm-route protected">/checkout/[propertyId]</div>
+      <div class="sm-route protected">/booking-confirmation/[bookingId]</div>
+    </div>
+  </div>
+
+  <div class="sm-group">
+    <h3>Host Management Hub</h3>
+    <div class="sm-routes">
+      <div class="sm-route protected">/host/dashboard</div>
+      <div class="sm-route protected">/host/properties</div>
+      <div class="sm-route protected">/host/properties/new</div>
+      <div class="sm-route protected">/host/properties/[id]/edit</div>
+      <div class="sm-route protected">/host/bookings</div>
+      <div class="sm-route protected">/host/calendar</div>
+      <div class="sm-route protected">/host/earnings</div>
+      <div class="sm-route protected">/host/onboarding/stripe</div>
+    </div>
+  </div>
+
+  <div class="sm-group">
+    <h3>API Routes & Webhooks</h3>
+    <div class="sm-routes">
+      <div class="sm-route">/api/webhooks/clerk</div>
+      <div class="sm-route">/api/webhooks/stripe</div>
+      <div class="sm-route">/api/webhooks/paypal</div>
+      <div class="sm-route">/api/stripe/connect</div>
+      <div class="sm-route">/api/stripe/checkout</div>
+      <div class="sm-route">/api/paypal/order</div>
+    </div>
+  </div>
+
+</div>
+
+<p class="subtitle" style="margin-top:20px;">Any routes missing? Should any be restructured? Let me know in the terminal.</p>

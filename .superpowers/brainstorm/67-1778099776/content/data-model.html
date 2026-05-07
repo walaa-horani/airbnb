@@ -1,0 +1,149 @@
+<h2>Section 2 of 5 — Convex Data Model</h2>
+<p class="subtitle">All database tables, their key fields, and how they relate to each other.</p>
+
+<style>
+.erd { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 16px; }
+.table { background: #1a1a2e; border: 1px solid #2d2d4e; border-radius: 10px; overflow: hidden; }
+.table-header { padding: 8px 14px; font-size: 12px; font-weight: 700; font-family: monospace; letter-spacing: 0.5px; }
+.table.users .table-header { background: #1e2d4a; color: #88bbff; border-bottom: 1px solid #2d4a6e; }
+.table.properties .table-header { background: #2d1e4a; color: #bb88ff; border-bottom: 1px solid #4a2d6e; }
+.table.bookings .table-header { background: #1e4a2d; color: #88ffbb; border-bottom: 1px solid #2d6e4a; }
+.table.payments .table-header { background: #4a2d1e; color: #ffbb88; border-bottom: 1px solid #6e4a2d; }
+.table.other .table-header { background: #2d2d2d; color: #cccccc; border-bottom: 1px solid #444; }
+.table-body { padding: 10px 14px; }
+.field { display: flex; gap: 8px; align-items: baseline; font-size: 11px; line-height: 1.9; }
+.field-name { font-family: monospace; color: #e2e2ff; min-width: 130px; }
+.field-type { color: #555; font-size: 10px; }
+.field-fk { color: #ff9944; font-size: 10px; }
+.field-note { color: #555; font-size: 10px; font-style: italic; }
+.divider { height: 1px; background: #222; margin: 6px 0; }
+.rel-legend { display: flex; gap: 20px; margin: 16px 0 8px 0; font-size: 11px; flex-wrap: wrap; }
+.rel-item { display: flex; align-items: center; gap: 6px; color: #888; }
+.dot-fk { width: 8px; height: 8px; border-radius: 50%; background: #ff9944; }
+.dot-idx { width: 8px; height: 8px; border-radius: 50%; background: #4488ff; }
+</style>
+
+<div class="rel-legend">
+  <div class="rel-item"><div class="dot-fk"></div> Foreign key ref</div>
+  <div class="rel-item"><div class="dot-idx"></div> Indexed field</div>
+</div>
+
+<div class="erd">
+
+  <div class="table users">
+    <div class="table-header">users</div>
+    <div class="table-body">
+      <div class="field"><span class="field-name">tokenIdentifier</span><span class="field-type">string</span></div>
+      <div class="field"><span class="field-name">clerkId</span><span class="field-type">string</span></div>
+      <div class="field"><span class="field-name">email</span><span class="field-type">string</span></div>
+      <div class="field"><span class="field-name">name</span><span class="field-type">string</span></div>
+      <div class="field"><span class="field-name">imageUrl</span><span class="field-type">string?</span></div>
+      <div class="field"><span class="field-name">role</span><span class="field-type">"guest"|"host"|"both"</span></div>
+    </div>
+  </div>
+
+  <div class="table properties">
+    <div class="table-header">properties</div>
+    <div class="table-body">
+      <div class="field"><span class="field-name">hostId</span><span class="field-fk">→ users</span></div>
+      <div class="field"><span class="field-name">title, description</span><span class="field-type">string</span></div>
+      <div class="field"><span class="field-name">type</span><span class="field-type">apartment|house|villa…</span></div>
+      <div class="field"><span class="field-name">status</span><span class="field-type">draft|published|unlisted</span></div>
+      <div class="field"><span class="field-name">city, country, lat, lng</span><span class="field-type">string/number</span></div>
+      <div class="field"><span class="field-name">pricePerNight</span><span class="field-type">number</span></div>
+      <div class="field"><span class="field-name">cleaningFee</span><span class="field-type">number</span></div>
+      <div class="field"><span class="field-name">maxGuests, bedrooms, beds, bathrooms</span><span class="field-type">number</span></div>
+      <div class="field"><span class="field-name">amenities</span><span class="field-type">string[]</span></div>
+      <div class="field"><span class="field-name">houseRules</span><span class="field-type">string[]</span></div>
+      <div class="field"><span class="field-name">checkInTime, checkOutTime</span><span class="field-type">string</span></div>
+      <div class="field"><span class="field-name">minNights, maxNights</span><span class="field-type">number</span></div>
+      <div class="field"><span class="field-name">instantBook</span><span class="field-type">boolean</span></div>
+      <div class="field"><span class="field-name">coverImageId</span><span class="field-fk">→ _storage</span></div>
+      <div class="field"><span class="field-name">avgRating, reviewCount</span><span class="field-type">number (denorm.)</span></div>
+    </div>
+  </div>
+
+  <div class="table other">
+    <div class="table-header">propertyImages</div>
+    <div class="table-body">
+      <div class="field"><span class="field-name">propertyId</span><span class="field-fk">→ properties</span></div>
+      <div class="field"><span class="field-name">storageId</span><span class="field-fk">→ _storage</span></div>
+      <div class="field"><span class="field-name">order</span><span class="field-type">number</span></div>
+      <div class="field"><span class="field-name">isCover</span><span class="field-type">boolean</span></div>
+    </div>
+  </div>
+
+  <div class="table bookings">
+    <div class="table-header">bookings</div>
+    <div class="table-body">
+      <div class="field"><span class="field-name">propertyId</span><span class="field-fk">→ properties</span></div>
+      <div class="field"><span class="field-name">guestId</span><span class="field-fk">→ users</span></div>
+      <div class="field"><span class="field-name">hostId</span><span class="field-fk">→ users</span></div>
+      <div class="field"><span class="field-name">checkIn, checkOut</span><span class="field-type">string (YYYY-MM-DD)</span></div>
+      <div class="field"><span class="field-name">guests</span><span class="field-type">number</span></div>
+      <div class="field"><span class="field-name">status</span><span class="field-type">pending|confirmed|cancelled|completed</span></div>
+      <div class="field"><span class="field-name">totalAmount</span><span class="field-type">number (cents)</span></div>
+      <div class="field"><span class="field-name">platformFee</span><span class="field-type">number (5%)</span></div>
+      <div class="field"><span class="field-name">hostPayout</span><span class="field-type">number (95%)</span></div>
+      <div class="field"><span class="field-name">paymentMethod</span><span class="field-type">"stripe"|"paypal"</span></div>
+      <div class="field"><span class="field-name">paymentIntentId</span><span class="field-type">string?</span></div>
+      <div class="field"><span class="field-name">paypalOrderId</span><span class="field-type">string?</span></div>
+      <div class="field"><span class="field-name">cancelledBy, cancelledAt</span><span class="field-type">string?</span></div>
+      <div class="field"><span class="field-name">cancellationReason</span><span class="field-type">string?</span></div>
+    </div>
+  </div>
+
+  <div class="table payments">
+    <div class="table-header">stripeAccounts</div>
+    <div class="table-body">
+      <div class="field"><span class="field-name">userId</span><span class="field-fk">→ users</span></div>
+      <div class="field"><span class="field-name">stripeAccountId</span><span class="field-type">string</span></div>
+      <div class="field"><span class="field-name">status</span><span class="field-type">pending|active|restricted</span></div>
+      <div class="field"><span class="field-name">chargesEnabled</span><span class="field-type">boolean</span></div>
+      <div class="field"><span class="field-name">payoutsEnabled</span><span class="field-type">boolean</span></div>
+    </div>
+  </div>
+
+  <div class="table payments">
+    <div class="table-header">paypalAccounts</div>
+    <div class="table-body">
+      <div class="field"><span class="field-name">userId</span><span class="field-fk">→ users</span></div>
+      <div class="field"><span class="field-name">paypalMerchantId</span><span class="field-type">string</span></div>
+      <div class="field"><span class="field-name">trackingId</span><span class="field-type">string</span></div>
+      <div class="field"><span class="field-name">status</span><span class="field-type">pending|active</span></div>
+    </div>
+  </div>
+
+  <div class="table other">
+    <div class="table-header">reviews</div>
+    <div class="table-body">
+      <div class="field"><span class="field-name">bookingId</span><span class="field-fk">→ bookings</span></div>
+      <div class="field"><span class="field-name">propertyId</span><span class="field-fk">→ properties</span></div>
+      <div class="field"><span class="field-name">guestId</span><span class="field-fk">→ users</span></div>
+      <div class="field"><span class="field-name">rating</span><span class="field-type">1–5</span></div>
+      <div class="field"><span class="field-name">comment</span><span class="field-type">string</span></div>
+    </div>
+  </div>
+
+  <div class="table other">
+    <div class="table-header">wishlists</div>
+    <div class="table-body">
+      <div class="field"><span class="field-name">userId</span><span class="field-fk">→ users</span></div>
+      <div class="field"><span class="field-name">propertyId</span><span class="field-fk">→ properties</span></div>
+    </div>
+  </div>
+
+  <div class="table other">
+    <div class="table-header">notifications</div>
+    <div class="table-body">
+      <div class="field"><span class="field-name">userId</span><span class="field-fk">→ users</span></div>
+      <div class="field"><span class="field-name">type</span><span class="field-type">booking_confirmed|cancelled|payout…</span></div>
+      <div class="field"><span class="field-name">title, message</span><span class="field-type">string</span></div>
+      <div class="field"><span class="field-name">read</span><span class="field-type">boolean</span></div>
+      <div class="field"><span class="field-name">relatedId</span><span class="field-type">string?</span></div>
+    </div>
+  </div>
+
+</div>
+
+<p class="subtitle" style="margin-top:20px;">Does this data model look complete? Anything to add or remove? Tell me in the terminal.</p>

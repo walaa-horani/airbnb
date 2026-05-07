@@ -1,0 +1,139 @@
+<h2>Section 5 of 5 — Host Onboarding & Auth Flows</h2>
+<p class="subtitle">How hosts connect Stripe & PayPal, and how Clerk auth integrates with Convex</p>
+
+<style>
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 16px; }
+.flow-card { background: #141428; border: 1px solid #2d2d4e; border-radius: 12px; overflow: hidden; }
+.flow-card-header { padding: 10px 14px; font-size: 12px; font-weight: 700; letter-spacing: 0.5px; border-bottom: 1px solid #2d2d4e; }
+.flow-card-header.purple { background: #1e1438; color: #cc88ff; border-bottom-color: #4a2d6e; }
+.flow-card-header.yellow { background: #1e1a0e; color: #ffcc88; border-bottom-color: #6e5a2d; }
+.flow-card-header.blue { background: #0e1428; color: #88bbff; border-bottom-color: #2d4a6e; }
+.flow-card-body { padding: 14px; }
+.fstep { display: flex; gap: 10px; margin-bottom: 10px; align-items: flex-start; }
+.fstep-num { width: 22px; height: 22px; border-radius: 50%; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+.fstep-num.p { background: #2d1e4a; color: #cc88ff; border: 1px solid #4a2d6e; }
+.fstep-num.y { background: #3a2a0e; color: #ffcc88; border: 1px solid #6e5a2d; }
+.fstep-num.b { background: #1e2d4a; color: #88bbff; border: 1px solid #2d4a6e; }
+.fstep-body { flex: 1; }
+.fstep-title { font-size: 12px; color: #e2e2ff; font-weight: 600; margin-bottom: 2px; }
+.fstep-desc { font-size: 11px; color: #666; line-height: 1.5; }
+.code-pill { background: #1a1a2e; border: 1px solid #2d2d4e; border-radius: 4px; padding: 1px 6px; font-family: monospace; font-size: 10px; color: #aaaaee; }
+.full-width { grid-column: 1 / -1; }
+.note-box { background: #1a1a2e; border: 1px solid #2d2d4e; border-radius: 8px; padding: 12px 16px; font-size: 12px; color: #777; line-height: 1.6; }
+.note-box strong { color: #aaaaff; }
+</style>
+
+<div class="two-col">
+
+  <!-- STRIPE CONNECT -->
+  <div class="flow-card">
+    <div class="flow-card-header purple">Stripe Connect Express Onboarding</div>
+    <div class="flow-card-body">
+      <div class="fstep">
+        <div class="fstep-num p">1</div>
+        <div class="fstep-body">
+          <div class="fstep-title">Host clicks "Connect with Stripe"</div>
+          <div class="fstep-desc">On <span class="code-pill">/host/onboarding/stripe</span> or dashboard banner. Convex action calls <span class="code-pill">accounts.create</span> → Express account.</div>
+        </div>
+      </div>
+      <div class="fstep">
+        <div class="fstep-num p">2</div>
+        <div class="fstep-body">
+          <div class="fstep-title">Stripe hosted onboarding</div>
+          <div class="fstep-desc">Redirect to Stripe's hosted UI. Host fills bank details, identity, tax info. Return URL back to <span class="code-pill">/host/dashboard</span>.</div>
+        </div>
+      </div>
+      <div class="fstep">
+        <div class="fstep-num p">3</div>
+        <div class="fstep-body">
+          <div class="fstep-title">Webhook confirms status</div>
+          <div class="fstep-desc"><span class="code-pill">account.updated</span> webhook → Convex HTTP endpoint → updates <span class="code-pill">stripeAccounts</span> table. <span class="code-pill">chargesEnabled: true</span> = fully active.</div>
+        </div>
+      </div>
+      <div class="fstep">
+        <div class="fstep-num p">4</div>
+        <div class="fstep-body">
+          <div class="fstep-title">Dashboard shows progress</div>
+          <div class="fstep-desc">Status pill: Pending → Restricted → Active. Host can't receive bookings until <span class="code-pill">chargesEnabled</span> is true.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAYPAL MARKETPLACE -->
+  <div class="flow-card">
+    <div class="flow-card-header yellow">PayPal Marketplace Onboarding</div>
+    <div class="flow-card-body">
+      <div class="fstep">
+        <div class="fstep-num y">1</div>
+        <div class="fstep-body">
+          <div class="fstep-title">Host clicks "Connect with PayPal"</div>
+          <div class="fstep-desc">Convex action calls Partner Referrals API v2 → generates onboarding link with <span class="code-pill">PAYMENT</span> + <span class="code-pill">REFUND</span> permissions.</div>
+        </div>
+      </div>
+      <div class="fstep">
+        <div class="fstep-num y">2</div>
+        <div class="fstep-body">
+          <div class="fstep-title">PayPal hosted sign-up</div>
+          <div class="fstep-desc">Host redirected to PayPal to create / link their PayPal business account. Return URL back to <span class="code-pill">/host/dashboard</span>.</div>
+        </div>
+      </div>
+      <div class="fstep">
+        <div class="fstep-num y">3</div>
+        <div class="fstep-body">
+          <div class="fstep-title">Merchant status confirmed</div>
+          <div class="fstep-desc"><span class="code-pill">MERCHANT.ONBOARDING.COMPLETED</span> webhook → Convex endpoint → saves <span class="code-pill">paypalMerchantId</span> + status active.</div>
+        </div>
+      </div>
+      <div class="fstep">
+        <div class="fstep-num y">4</div>
+        <div class="fstep-body">
+          <div class="fstep-title">PayPal appears at checkout</div>
+          <div class="fstep-desc">Only shown to guests when the property's host has an active PayPal account. No PayPal account = Stripe only shown.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CLERK + CONVEX AUTH -->
+  <div class="flow-card full-width">
+    <div class="flow-card-header blue">Clerk ↔ Convex Auth Integration</div>
+    <div class="flow-card-body" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <div>
+        <div class="fstep">
+          <div class="fstep-num b">1</div>
+          <div class="fstep-body">
+            <div class="fstep-title">Clerk configured with proxy</div>
+            <div class="fstep-desc">No <span class="code-pill">middleware.ts</span> file. Instead, Clerk proxy routes set in <span class="code-pill">next.config.ts</span> rewrites. Auth checked via <span class="code-pill">auth()</span> in Server Components and Route Handlers.</div>
+          </div>
+        </div>
+        <div class="fstep">
+          <div class="fstep-num b">2</div>
+          <div class="fstep-body">
+            <div class="fstep-title">User signs up (Google or Email)</div>
+            <div class="fstep-desc">Clerk handles the full auth UI at <span class="code-pill">/sign-in</span> and <span class="code-pill">/sign-up</span> using Clerk's hosted components. Role defaults to <span class="code-pill">guest</span>.</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="fstep">
+          <div class="fstep-num b">3</div>
+          <div class="fstep-body">
+            <div class="fstep-title">Clerk webhook syncs user to Convex</div>
+            <div class="fstep-desc"><span class="code-pill">user.created</span> + <span class="code-pill">user.updated</span> → Convex HTTP endpoint at <span class="code-pill">/api/webhooks/clerk</span> → upserts <span class="code-pill">users</span> table with <span class="code-pill">tokenIdentifier</span>.</div>
+          </div>
+        </div>
+        <div class="fstep">
+          <div class="fstep-num b">4</div>
+          <div class="fstep-body">
+            <div class="fstep-title">Convex uses tokenIdentifier for all auth</div>
+            <div class="fstep-desc">Every protected Convex function calls <span class="code-pill">ctx.auth.getUserIdentity()</span> → looks up user by <span class="code-pill">tokenIdentifier</span>. Never trusts a userId passed from the client.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<p class="subtitle" style="margin-top: 16px;">That's all 5 sections. Does everything look good to write up as a formal spec?</p>

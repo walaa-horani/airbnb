@@ -1,16 +1,12 @@
 "use client";
 
 import {
-  Authenticated,
-  Unauthenticated,
   useMutation,
   useQuery,
 } from "convex/react";
 import { api } from "../convex/_generated/api";
 import Link from "next/link";
-import { SignUpButton } from "@clerk/nextjs";
-import { SignInButton } from "@clerk/nextjs";
-import { UserButton } from "@clerk/nextjs";
+import { SignUpButton, SignInButton, UserButton, Show } from "@clerk/nextjs";
 
 export default function Home() {
   return (
@@ -23,12 +19,12 @@ export default function Home() {
         <h1 className="text-4xl font-bold text-center">
           Convex + Next.js + Clerk
         </h1>
-        <Authenticated>
+        <Show when="signed-in">
           <Content />
-        </Authenticated>
-        <Unauthenticated>
+        </Show>
+        <Show when="signed-out">
           <SignInForm />
-        </Unauthenticated>
+        </Show>
       </main>
     </>
   );
