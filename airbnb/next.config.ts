@@ -2,14 +2,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  async rewrites() {
-    return [
-      {
-        source: "/clerk-proxy/:path*",
-        destination: `${process.env.CLERK_FRONTEND_API_URL}/:path*`,
-      },
-    ];
-  },
+  transpilePackages: ["@mapbox/search-js-react", "@mapbox/search-js-core"],
   images: {
     remotePatterns: [
       { hostname: "res.cloudinary.com" },
