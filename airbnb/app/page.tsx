@@ -1,162 +1,72 @@
+// airbnb/app/page.tsx
 "use client";
 
-import {
-  useMutation,
-  useQuery,
-} from "convex/react";
-import { api } from "../convex/_generated/api";
 import Link from "next/link";
-import { SignUpButton, SignInButton, UserButton, Show } from "@clerk/nextjs";
+import { usePaginatedQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { PropertyCard } from "@/components/properties/PropertyCard";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 
-export default function Home() {
-  return (
-    <>
-      <header className="sticky top-0 z-10 bg-background p-4 border-b-2 border-slate-200 dark:border-slate-800 flex flex-row justify-between items-center">
-        Convex + Next.js + Clerk
-        <UserButton />
-      </header>
-      <main className="p-8 flex flex-col gap-8">
-        <h1 className="text-4xl font-bold text-center">
-          Convex + Next.js + Clerk
-        </h1>
-        <Show when="signed-in">
-          <Content />
-        </Show>
-        <Show when="signed-out">
-          <SignInForm />
-        </Show>
-      </main>
-    </>
+export default function HomePage() {
+  const { results, status, loadMore } = usePaginatedQuery(
+    api.properties.getPublishedProperties,
+    {},
+    { initialNumItems: 10 },
   );
-}
-
-function SignInForm() {
-  return (
-    <div className="flex flex-col gap-8 w-96 mx-auto">
-      <p>Log in to see the numbers</p>
-      <SignInButton mode="modal">
-        <button className="bg-foreground text-background px-4 py-2 rounded-md">
-          Sign in
-        </button>
-      </SignInButton>
-      <SignUpButton mode="modal">
-        <button className="bg-foreground text-background px-4 py-2 rounded-md">
-          Sign up
-        </button>
-      </SignUpButton>
-    </div>
-  );
-}
-
-function Content() {
-  const { viewer, numbers } =
-    useQuery(api.myFunctions.listNumbers, {
-      count: 10,
-    }) ?? {};
-  const addNumber = useMutation(api.myFunctions.addNumber);
-
-  if (viewer === undefined || numbers === undefined) {
-    return (
-      <div className="mx-auto">
-        <p>loading... (consider a loading skeleton)</p>
-      </div>
-    );
-  }
 
   return (
-    <div className="flex flex-col gap-8 max-w-lg mx-auto">
-      <p>Welcome {viewer ?? "Anonymous"}!</p>
-      <p>
-        Click the button below and open this page in another window - this data
-        is persisted in the Convex cloud database!
-      </p>
-      <p>
-        <button
-          className="bg-foreground text-background text-sm px-4 py-2 rounded-md"
-          onClick={() => {
-            void addNumber({ value: Math.floor(Math.random() * 10) });
-          }}
-        >
-          Add a random number
-        </button>
-      </p>
-      <p>
-        Numbers:{" "}
-        {numbers?.length === 0
-          ? "Click the button!"
-          : (numbers?.join(", ") ?? "...")}
-      </p>
-      <p>
-        Edit{" "}
-        <code className="text-sm font-bold font-mono bg-slate-200 dark:bg-slate-800 px-1 py-0.5 rounded-md">
-          convex/myFunctions.ts
-        </code>{" "}
-        to change your backend
-      </p>
-      <p>
-        Edit{" "}
-        <code className="text-sm font-bold font-mono bg-slate-200 dark:bg-slate-800 px-1 py-0.5 rounded-md">
-          app/page.tsx
-        </code>{" "}
-        to change your frontend
-      </p>
-      <p>
-        See the{" "}
-        <Link href="/server" className="underline hover:no-underline">
-          /server route
-        </Link>{" "}
-        for an example of loading data in a server component
-      </p>
-      <div className="flex flex-col">
-        <p className="text-lg font-bold">Useful resources:</p>
-        <div className="flex gap-2">
-          <div className="flex flex-col gap-2 w-1/2">
-            <ResourceCard
-              title="Convex docs"
-              description="Read comprehensive documentation for all Convex features."
-              href="https://docs.convex.dev/home"
-            />
-            <ResourceCard
-              title="Stack articles"
-              description="Learn about best practices, use cases, and more from a growing
-            collection of articles, videos, and walkthroughs."
-              href="https://www.typescriptlang.org/docs/handbook/2/basic-types.html"
-            />
-          </div>
-          <div className="flex flex-col gap-2 w-1/2">
-            <ResourceCard
-              title="Templates"
-              description="Browse our collection of templates to get started quickly."
-              href="https://www.convex.dev/templates"
-            />
-            <ResourceCard
-              title="Discord"
-              description="Join our developer community to ask questions, trade tips & tricks,
-            and show off your projects."
-              href="https://www.convex.dev/community"
-            />
-          </div>
+    <div className="mx-auto max-w-7xl px-4 py-8">
+      <header className="flex items-center justify-between mb-10">
+        <Link href="/" className="text-2xl font-bold tracking-tight">
+          StayFinder
+        </Link>
+        <div className="flex items-center gap-3">
+          <Link href="/sign-in" className="text-sm font-medium hover:underline">
+            Sign in
+          </Link>
+          <Button asChild size="sm">
+            <Link href="/host/properties/new">Become a host</Link>
+          </Button>
         </div>
-      </div>
-    </div>
-  );
-}
+      </header>
 
-function ResourceCard({
-  title,
-  description,
-  href,
-}: {
-  title: string;
-  description: string;
-  href: string;
-}) {
-  return (
-    <div className="flex flex-col gap-2 bg-slate-200 dark:bg-slate-800 p-4 rounded-md h-28 overflow-auto">
-      <a href={href} className="text-sm underline hover:no-underline">
-        {title}
-      </a>
-      <p className="text-xs">{description}</p>
+      <h1 className="text-3xl font-bold mb-8">Find your perfect stay</h1>
+
+      {status === "LoadingFirstPage" && (
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <Skeleton key={i} className="aspect-[4/3] rounded-xl" />
+          ))}
+        </div>
+      )}
+
+      {status !== "LoadingFirstPage" && results.length === 0 && (
+        <div className="py-24 text-center">
+          <p className="text-lg font-medium">No properties yet.</p>
+          <p className="text-muted-foreground mt-1">
+            Run the seed mutation in your Convex dashboard to add sample data.
+          </p>
+        </div>
+      )}
+
+      {results.length > 0 && (
+        <>
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            {results.map((property) => (
+              <PropertyCard key={property._id} property={property} />
+            ))}
+          </div>
+
+          {status === "CanLoadMore" && (
+            <div className="mt-10 flex justify-center">
+              <Button variant="outline" onClick={() => loadMore(10)}>
+                Load more
+              </Button>
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 }
