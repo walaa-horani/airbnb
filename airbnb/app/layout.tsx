@@ -18,7 +18,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <ClerkProvider
-          proxyUrl={`${process.env.NEXT_PUBLIC_APP_URL}/clerk-proxy`}
+          proxyUrl={`${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/clerk-proxy`}
           signInUrl="/sign-in"
           signUpUrl="/sign-up"
           afterSignInUrl="/"
