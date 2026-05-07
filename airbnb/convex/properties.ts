@@ -222,3 +222,13 @@ export const deleteProperty = mutation({
     return { deleted: true, unlisted: false };
   },
 });
+
+export const getAllPublishedProperties = query({
+  args: {},
+  handler: async (ctx) => {
+    return ctx.db
+      .query("properties")
+      .withIndex("by_status", (q) => q.eq("status", "published"))
+      .collect();
+  },
+});

@@ -8,7 +8,13 @@
  * @module
  */
 
-import type * as myFunctions from "../myFunctions.js";
+import type * as http from "../http.js";
+import type * as properties from "../properties.js";
+import type * as propertyImages from "../propertyImages.js";
+import type * as seed from "../seed.js";
+import type * as users from "../users.js";
+import type * as webhooks_clerk from "../webhooks/clerk.js";
+import type * as webhooks_clerkNode from "../webhooks/clerkNode.js";
 
 import type {
   ApiFromModules,
@@ -17,7 +23,13 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
-  myFunctions: typeof myFunctions;
+  http: typeof http;
+  properties: typeof properties;
+  propertyImages: typeof propertyImages;
+  seed: typeof seed;
+  users: typeof users;
+  "webhooks/clerk": typeof webhooks_clerk;
+  "webhooks/clerkNode": typeof webhooks_clerkNode;
 }>;
 
 /**
