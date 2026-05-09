@@ -56,7 +56,6 @@ function StarPicker({ value, onChange }: { value: number; onChange: (v: number) 
 
 export default function TripsPage() {
   const bookings = useQuery(api.bookings.getGuestBookings, {});
-  const cancelBooking = useMutation(api.bookings.cancelBooking);
   const submitReview = useMutation(api.reviews.submitReview);
 
   const [cancelId, setCancelId] = useState<Id<"bookings"> | null>(null);
@@ -71,7 +70,17 @@ export default function TripsPage() {
     if (!cancelId) return;
     setCancelling(true);
     try {
-      await cancelBooking({ bookingId: cancelId, reason: "Cancelled by guest" });
+      const res = await fetch("/api/bookings/cancel", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ bookingId: cancelId, reason: "Cancelled by guest" }),
+      });
+      if (!res.ok) {
+        const data = (await res.json()) as { error?: string };
+        throw new Error(data.error ?? "Failed to cancel booking");
+      }
+    } catch (err) {
+      console.error("Cancel error:", err);
     } finally {
       setCancelId(null);
       setCancelling(false);

@@ -1,7 +1,7 @@
 // app/(protected)/booking-confirmation/[bookingId]/page.tsx
 "use client";
 
-import { use, Suspense } from "react";
+import { use, Suspense, useEffect, useRef } from "react";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
@@ -28,6 +28,18 @@ function ConfirmationContent({ bookingId }: { bookingId: Id<"bookings"> }) {
   );
   const searchParams = useSearchParams();
   const redirectStatus = searchParams.get("redirect_status");
+
+  const emailSent = useRef(false);
+  useEffect(() => {
+    if (redirectStatus === "succeeded" && booking && !emailSent.current) {
+      emailSent.current = true;
+      fetch("/api/emails/booking-confirmed", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ bookingId: booking._id }),
+      }).catch(() => {/* email is best-effort */});
+    }
+  }, [redirectStatus, booking]);
 
   if (booking === undefined) {
     return (
