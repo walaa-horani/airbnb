@@ -1,15 +1,55 @@
-// airbnb/components/properties/PropertyCard.tsx
+// components/properties/PropertyCard.tsx
 "use client";
 
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
-import { Doc } from "@/convex/_generated/dataModel";
+import { Doc, Id } from "@/convex/_generated/dataModel";
+import { useQuery, useMutation, useConvexAuth } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { Heart } from "lucide-react";
+import { useState } from "react";
 
 interface PropertyCardProps {
   property: Doc<"properties">;
   showActions?: boolean;
   onDelete?: (id: string) => void;
+}
+
+function WishlistButton({ propertyId }: { propertyId: Id<"properties"> }) {
+  const { isAuthenticated } = useConvexAuth();
+  const wishlisted = useQuery(
+    api.wishlists.isWishlisted,
+    isAuthenticated ? { propertyId } : "skip",
+  );
+  const toggleWishlist = useMutation(api.wishlists.toggleWishlist);
+  const [pending, setPending] = useState(false);
+
+  const handleClick = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!isAuthenticated || pending) return;
+    setPending(true);
+    try {
+      await toggleWishlist({ propertyId });
+    } finally {
+      setPending(false);
+    }
+  };
+
+  return (
+    <button
+      onClick={handleClick}
+      className="absolute top-2 right-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white/80 backdrop-blur-sm shadow-sm hover:bg-white transition-colors"
+      aria-label={wishlisted ? "Remove from wishlist" : "Save to wishlist"}
+    >
+      <Heart
+        className={`h-4 w-4 transition-colors ${
+          wishlisted ? "fill-red-500 text-red-500" : "text-gray-600"
+        }`}
+      />
+    </button>
+  );
 }
 
 export function PropertyCard({ property, showActions, onDelete }: PropertyCardProps) {
@@ -40,6 +80,7 @@ export function PropertyCard({ property, showActions, onDelete }: PropertyCardPr
               {property.status}
             </Badge>
           )}
+          <WishlistButton propertyId={property._id} />
         </div>
 
         <div className="mt-2 space-y-1">
