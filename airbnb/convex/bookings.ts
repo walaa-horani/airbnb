@@ -1,6 +1,7 @@
 // airbnb/convex/bookings.ts
 import { mutation, query, internalMutation } from "./_generated/server";
 import { v } from "convex/values";
+import { Id } from "./_generated/dataModel";
 
 function datesOverlap(
   aStart: string,
@@ -230,5 +231,20 @@ export const cleanupAbandonedBookings = internalMutation({
         await ctx.db.delete(booking._id);
       }
     }
+  },
+});
+
+export const confirmBookingFromWebhook = internalMutation({
+  args: {
+    bookingId: v.string(),
+    paymentIntentId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const booking = await ctx.db.get(args.bookingId as Id<"bookings">);
+    if (!booking || booking.status === "confirmed") return;
+    await ctx.db.patch(booking._id, {
+      status: "confirmed",
+      paymentIntentId: args.paymentIntentId,
+    });
   },
 });

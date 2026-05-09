@@ -10,6 +10,7 @@ export const upsertFromWebhook = internalMutation({
     name: v.string(),
     imageUrl: v.optional(v.string()),
     tokenIdentifier: v.string(),
+    stripeCustomerId: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const existing = await ctx.db
@@ -23,6 +24,10 @@ export const upsertFromWebhook = internalMutation({
         name: args.name,
         imageUrl: args.imageUrl,
         tokenIdentifier: args.tokenIdentifier,
+        // Only set stripeCustomerId if provided and not already set
+        ...(args.stripeCustomerId && !existing.stripeCustomerId
+          ? { stripeCustomerId: args.stripeCustomerId }
+          : {}),
       });
       return existing._id;
     }
@@ -34,6 +39,7 @@ export const upsertFromWebhook = internalMutation({
       name: args.name,
       imageUrl: args.imageUrl,
       role: "guest",
+      stripeCustomerId: args.stripeCustomerId,
     });
   },
 });
@@ -83,5 +89,21 @@ export const getUserById = query({
   args: { userId: v.id("users") },
   handler: async (ctx, args) => {
     return await ctx.db.get(args.userId);
+  },
+});
+
+export const setStripeCustomerId = mutation({
+  args: { stripeCustomerId: v.string() },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Unauthenticated");
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_token_identifier", (q) =>
+        q.eq("tokenIdentifier", identity.tokenIdentifier),
+      )
+      .unique();
+    if (!user) throw new Error("User not found");
+    await ctx.db.patch(user._id, { stripeCustomerId: args.stripeCustomerId });
   },
 });
