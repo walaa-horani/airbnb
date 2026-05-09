@@ -9,12 +9,14 @@ import { render } from "@react-email/render";
 import BookingCancelledGuest from "@/emails/BookingCancelledGuest";
 import BookingCancelledHost from "@/emails/BookingCancelledHost";
 
-const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2026-04-22.dahlia" });
 const resend = new Resend(process.env.RESEND_API_KEY!);
 const FROM = process.env.RESEND_FROM_EMAIL ?? "Airbnb Clone <onboarding@resend.dev>";
 
 export async function POST(req: NextRequest) {
+  // ConvexHttpClient is per-request to prevent auth token leaking between concurrent requests
+  const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
+
   const { getToken } = await auth();
   const token = await getToken({ template: "convex" });
   if (!token) return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
@@ -26,7 +28,8 @@ export async function POST(req: NextRequest) {
   };
   if (!bookingId) return NextResponse.json({ error: "Missing bookingId" }, { status: 400 });
 
-  const booking = await convex.query(api.bookings.getBookingById, {
+  // getBooking enforces ownership — returns null if caller is not guest or host
+  const booking = await convex.query(api.bookings.getBooking, {
     bookingId: bookingId as Id<"bookings">,
   });
   if (!booking) return NextResponse.json({ error: "Booking not found" }, { status: 404 });
@@ -34,33 +37,32 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Already cancelled" }, { status: 400 });
   }
 
-  // Cancel in Convex — mutation enforces ownership
+  // Cancel in Convex — mutation also enforces ownership
   await convex.mutation(api.bookings.cancelBooking, {
     bookingId: bookingId as Id<"bookings">,
     reason: reason ?? "Cancelled by user",
   });
 
-  // Stripe refund — works even if webhook didn't fire (search by bookingId metadata)
-  let refundAmount = 0;
+  // Find the PaymentIntent — stored on booking if webhook fired, otherwise search Stripe by metadata
   let paymentIntentId = booking.paymentIntentId ?? null;
 
   if (!paymentIntentId) {
-    // Webhook may not have updated the booking — search Stripe by metadata
     try {
       const result = await stripe.paymentIntents.search({
         query: `metadata['bookingId']:'${bookingId}' AND status:'succeeded'`,
       });
       if (result.data.length > 0) paymentIntentId = result.data[0].id;
     } catch (err) {
-      console.error("Stripe search error:", err);
+      console.error("Stripe PI search error:", err);
     }
   }
 
+  let refundAmount = 0;
   if (paymentIntentId) {
     try {
       const refund = await stripe.refunds.create({
         payment_intent: paymentIntentId,
-        reverse_transfer: true, // also reclaims funds from the host's connected account
+        reverse_transfer: true, // reclaim funds from host's Connect account balance
       });
       refundAmount = refund.amount;
     } catch (err) {
@@ -68,11 +70,11 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // Fetch related data for emails
+  // Fetch only public profile fields for emails (name + email, no PII)
   const [property, guest, host] = await Promise.all([
     convex.query(api.properties.getProperty, { propertyId: booking.propertyId }),
-    convex.query(api.users.getUserById, { userId: booking.guestId }),
-    convex.query(api.users.getUserById, { userId: booking.hostId }),
+    convex.query(api.users.getUserPublicProfile, { userId: booking.guestId }),
+    convex.query(api.users.getUserPublicProfile, { userId: booking.hostId }),
   ]);
 
   if (property && guest && host) {

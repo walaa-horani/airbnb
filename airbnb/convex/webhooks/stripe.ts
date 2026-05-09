@@ -24,10 +24,17 @@ async function verifyStripeSignature(
     ["sign"],
   );
   const sig = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(signedPayload));
-  const expected = Array.from(new Uint8Array(sig))
+  const expectedHex = Array.from(new Uint8Array(sig))
     .map((b) => b.toString(16).padStart(2, "0"))
     .join("");
-  return expected === v1;
+
+  // Constant-time comparison to prevent timing attacks on webhook signature
+  if (expectedHex.length !== v1.length) return false;
+  let diff = 0;
+  for (let i = 0; i < expectedHex.length; i++) {
+    diff |= expectedHex.charCodeAt(i) ^ v1.charCodeAt(i);
+  }
+  return diff === 0;
 }
 
 export const stripeWebhook = httpAction(async (ctx, req) => {

@@ -6,9 +6,9 @@ import { auth } from "@clerk/nextjs/server";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 
-const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
-
 export async function POST(req: NextRequest) {
+  // ConvexHttpClient is per-request to prevent auth token leaking between concurrent requests
+  const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
     apiVersion: "2026-04-22.dahlia",
   });
@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
   if (!token) return NextResponse.json({ error: "Token error" }, { status: 401 });
   convex.setAuth(token);
 
-  const { bookingId } = await req.json() as { bookingId: string };
+  const { bookingId } = (await req.json()) as { bookingId: string };
   if (!bookingId) return NextResponse.json({ error: "Missing bookingId" }, { status: 400 });
 
   const booking = await convex.query(api.bookings.getBooking, {

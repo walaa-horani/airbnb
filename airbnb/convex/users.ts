@@ -92,6 +92,16 @@ export const getUserById = query({
   },
 });
 
+// Returns only the fields needed for emails — safe to call from server-side API routes
+export const getUserPublicProfile = query({
+  args: { userId: v.id("users") },
+  handler: async (ctx, args) => {
+    const user = await ctx.db.get(args.userId);
+    if (!user) return null;
+    return { name: user.name, email: user.email, imageUrl: user.imageUrl };
+  },
+});
+
 export const setStripeCustomerId = mutation({
   args: { stripeCustomerId: v.string() },
   handler: async (ctx, args) => {

@@ -228,7 +228,15 @@ export const cleanupAbandonedBookings = internalMutation({
       .collect();
     for (const booking of bookings) {
       if (booking._creationTime < cutoff) {
-        await ctx.db.delete(booking._id);
+        // Mark as cancelled (not deleted) to preserve audit trail.
+        // Hard-deleting risks losing a booking that was paid but whose webhook
+        // hasn't fired yet — the PaymentIntent would exist with no matching record.
+        await ctx.db.patch(booking._id, {
+          status: "cancelled",
+          cancelledBy: "guest",
+          cancelledAt: Date.now(),
+          cancellationReason: "Payment not completed within 2 hours",
+        });
       }
     }
   },

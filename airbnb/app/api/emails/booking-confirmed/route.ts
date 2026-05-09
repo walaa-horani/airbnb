@@ -8,11 +8,13 @@ import { render } from "@react-email/render";
 import BookingConfirmedGuest from "@/emails/BookingConfirmedGuest";
 import NewBookingHost from "@/emails/NewBookingHost";
 
-const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 const resend = new Resend(process.env.RESEND_API_KEY!);
 const FROM = process.env.RESEND_FROM_EMAIL ?? "Airbnb Clone <onboarding@resend.dev>";
 
 export async function POST(req: NextRequest) {
+  // ConvexHttpClient is per-request to prevent auth token leaking between concurrent requests
+  const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
+
   const { getToken } = await auth();
   const token = await getToken({ template: "convex" });
   if (!token) return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
@@ -21,15 +23,17 @@ export async function POST(req: NextRequest) {
   const { bookingId } = (await req.json()) as { bookingId: string };
   if (!bookingId) return NextResponse.json({ error: "Missing bookingId" }, { status: 400 });
 
-  const booking = await convex.query(api.bookings.getBookingById, {
+  // getBooking enforces ownership — returns null if caller is not guest or host
+  const booking = await convex.query(api.bookings.getBooking, {
     bookingId: bookingId as Id<"bookings">,
   });
   if (!booking) return NextResponse.json({ error: "Booking not found" }, { status: 404 });
 
+  // Fetch only public profile fields for emails (name + email, no PII like stripeCustomerId)
   const [property, guest, host] = await Promise.all([
     convex.query(api.properties.getProperty, { propertyId: booking.propertyId }),
-    convex.query(api.users.getUserById, { userId: booking.guestId }),
-    convex.query(api.users.getUserById, { userId: booking.hostId }),
+    convex.query(api.users.getUserPublicProfile, { userId: booking.guestId }),
+    convex.query(api.users.getUserPublicProfile, { userId: booking.hostId }),
   ]);
 
   if (!property || !guest || !host) {
