@@ -32,6 +32,7 @@ export function PropertyDetailClient({ property }: { property: Doc<"properties">
 
   const images = useQuery(api.propertyImages.getPropertyImages, { propertyId: property._id });
   const bookedDates = useQuery(api.bookings.getBookedDates, { propertyId: property._id });
+  const reviews = useQuery(api.reviews.getPropertyReviews, { propertyId: property._id });
 
   const allImages = images ?? [];
   const lightboxSlides = allImages.map((img) => ({ src: img.url }));
@@ -184,6 +185,49 @@ export function PropertyDetailClient({ property }: { property: Doc<"properties">
           )}
 
           <Separator />
+
+          {(reviews?.length ?? 0) > 0 && (
+            <>
+              <div>
+                <div className="flex items-center gap-2 mb-4">
+                  <h2 className="text-lg font-semibold">Reviews</h2>
+                  <span className="flex items-center gap-1 text-sm">
+                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                    <span className="font-medium">{property.avgRating.toFixed(1)}</span>
+                    <span className="text-muted-foreground">({property.reviewCount})</span>
+                  </span>
+                </div>
+                <div className="space-y-5">
+                  {reviews?.map((review) => (
+                    <div key={review._id} className="space-y-1.5">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2">
+                          {review.guestImage ? (
+                            <img src={review.guestImage} alt="" className="h-8 w-8 rounded-full object-cover" />
+                          ) : (
+                            <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center text-xs font-medium">
+                              {review.guestName[0]?.toUpperCase()}
+                            </div>
+                          )}
+                          <span className="text-sm font-medium">{review.guestName}</span>
+                        </div>
+                        <div className="flex items-center gap-0.5">
+                          {[1, 2, 3, 4, 5].map((n) => (
+                            <Star
+                              key={n}
+                              className={`h-3.5 w-3.5 ${n <= review.rating ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground"}`}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                      <p className="text-sm text-muted-foreground leading-relaxed">{review.comment}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <Separator />
+            </>
+          )}
 
           <div>
             <h2 className="text-lg font-semibold mb-3">Location</h2>
