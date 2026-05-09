@@ -40,12 +40,27 @@ export async function POST(req: NextRequest) {
     reason: reason ?? "Cancelled by user",
   });
 
-  // Stripe refund — only for confirmed bookings that were paid
+  // Stripe refund — works even if webhook didn't fire (search by bookingId metadata)
   let refundAmount = 0;
-  if (booking.paymentIntentId && booking.status === "confirmed") {
+  let paymentIntentId = booking.paymentIntentId ?? null;
+
+  if (!paymentIntentId) {
+    // Webhook may not have updated the booking — search Stripe by metadata
+    try {
+      const result = await stripe.paymentIntents.search({
+        query: `metadata['bookingId']:'${bookingId}' AND status:'succeeded'`,
+      });
+      if (result.data.length > 0) paymentIntentId = result.data[0].id;
+    } catch (err) {
+      console.error("Stripe search error:", err);
+    }
+  }
+
+  if (paymentIntentId) {
     try {
       const refund = await stripe.refunds.create({
-        payment_intent: booking.paymentIntentId,
+        payment_intent: paymentIntentId,
+        reverse_transfer: true, // also reclaims funds from the host's connected account
       });
       refundAmount = refund.amount;
     } catch (err) {
