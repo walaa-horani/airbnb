@@ -42,7 +42,7 @@ export default function HostPropertiesPage() {
     <div className="mx-auto max-w-6xl px-4 py-8">
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-2xl font-bold">Your listings</h1>
-        <Button asChild>
+        <Button className="cursor-pointer flex items-center justify-center">
           <Link href="/host/properties/new">
             <Plus className="h-4 w-4 mr-2" />
             Add listing

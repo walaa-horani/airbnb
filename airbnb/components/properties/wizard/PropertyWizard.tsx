@@ -58,6 +58,7 @@ export function PropertyWizard({ mode, propertyId, defaultValues }: PropertyWiza
   const router = useRouter();
 
   const createProperty = useMutation(api.properties.createProperty);
+  const publishProperty = useMutation(api.properties.publishProperty);
   const updateProperty = useMutation(api.properties.updateProperty);
   const addImage = useMutation(api.propertyImages.addPropertyImage);
 
@@ -117,6 +118,7 @@ export function PropertyWizard({ mode, propertyId, defaultValues }: PropertyWiza
           });
         }
 
+        await publishProperty({ propertyId: newPropertyId });
         router.push(`/host/properties`);
       } else if (mode === "edit" && propertyId) {
         await updateProperty({ propertyId, ...propertyData });
@@ -149,7 +151,7 @@ export function PropertyWizard({ mode, propertyId, defaultValues }: PropertyWiza
       </div>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <form className="space-y-8">
           {stepComponents[currentStep.id]}
 
           <div className="flex justify-between pt-6 border-t">
@@ -163,7 +165,7 @@ export function PropertyWizard({ mode, propertyId, defaultValues }: PropertyWiza
             </Button>
 
             {isLastStep ? (
-              <Button type="submit" disabled={saving}>
+              <Button type="button" onClick={form.handleSubmit(onSubmit)} disabled={saving}>
                 {saving ? "Saving…" : mode === "create" ? "Create listing" : "Save changes"}
               </Button>
             ) : (

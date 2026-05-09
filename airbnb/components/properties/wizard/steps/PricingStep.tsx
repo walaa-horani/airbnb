@@ -22,15 +22,15 @@ function CentsInput({ label, description, form, name }: {
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
               <Input
-                type="number"
-                min={0}
-                step={0.01}
+                type="text"
+                inputMode="decimal"
                 className="pl-7"
                 placeholder="0.00"
                 value={field.value ? (field.value / 100).toFixed(2) : ""}
-                onChange={(e) =>
-                  field.onChange(Math.round(parseFloat(e.target.value || "0") * 100))
-                }
+                onChange={(e) => {
+                  const raw = e.target.value.replace(/[^0-9.]/g, "");
+                  field.onChange(Math.round(parseFloat(raw || "0") * 100));
+                }}
               />
             </div>
           </FormControl>

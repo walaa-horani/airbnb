@@ -10,6 +10,7 @@ export default defineSchema({
     name: v.string(),
     imageUrl: v.optional(v.string()),
     role: v.union(v.literal("guest"), v.literal("host"), v.literal("both")),
+    stripeCustomerId: v.optional(v.string()),
   })
     .index("by_token_identifier", ["tokenIdentifier"])
     .index("by_clerk_id", ["clerkId"]),

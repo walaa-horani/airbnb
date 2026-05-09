@@ -15,10 +15,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
+      <body className="antialiased">
         <ClerkProvider
-          proxyUrl={`${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/clerk-proxy`}
+
           signInUrl="/sign-in"
           signUpUrl="/sign-up"
         >
