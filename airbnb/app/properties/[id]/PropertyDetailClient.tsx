@@ -1,36 +1,68 @@
-// airbnb/app/properties/[id]/PropertyDetailClient.tsx
+// app/properties/[id]/PropertyDetailClient.tsx
 "use client";
 
 import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Doc } from "@/convex/_generated/dataModel";
 import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
-import { DayPicker } from "react-day-picker";
+import { DayPicker, DateRange } from "react-day-picker";
 import "react-day-picker/style.css";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Button } from "@/components/ui/button";
-import { MapPin, Users, BedDouble, Bath, Clock, Star } from "lucide-react";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { MapPin, Users, BedDouble, Bath, Clock, Star, Minus, Plus } from "lucide-react";
 import { PropertyMap } from "@/components/map/PropertyMap";
 
 function formatCents(cents: number) {
   return `$${(cents / 100).toFixed(0)}`;
 }
 
+function toDateString(d: Date): string {
+  return d.toISOString().split("T")[0];
+}
+
 export function PropertyDetailClient({ property }: { property: Doc<"properties"> }) {
   const [lightboxIndex, setLightboxIndex] = useState(-1);
-  const images = useQuery(api.propertyImages.getPropertyImages, {
-    propertyId: property._id,
-  });
+  const [range, setRange] = useState<DateRange | undefined>();
+  const [guests, setGuests] = useState(1);
+
+  const images = useQuery(api.propertyImages.getPropertyImages, { propertyId: property._id });
+  const bookedDates = useQuery(api.bookings.getBookedDates, { propertyId: property._id });
 
   const allImages = images ?? [];
   const lightboxSlides = allImages.map((img) => ({ src: img.url }));
 
-  const serviceFee = Math.round((property.pricePerNight + property.cleaningFee) * 0.05);
-  const total = property.pricePerNight + property.cleaningFee + serviceFee;
+  const disabledDates: Date[] = [];
+  for (const b of bookedDates ?? []) {
+    const start = new Date(b.checkIn);
+    const end = new Date(b.checkOut);
+    for (let d = new Date(start); d < end; d.setDate(d.getDate() + 1)) {
+      disabledDates.push(new Date(d));
+    }
+  }
+
+  const checkIn = range?.from;
+  const checkOut = range?.to;
+  const nights =
+    checkIn && checkOut
+      ? Math.round((checkOut.getTime() - checkIn.getTime()) / 86400000)
+      : 0;
+
+  const subtotal = property.pricePerNight * nights;
+  const cleaningFee = nights > 0 ? property.cleaningFee : 0;
+  const serviceFee = Math.round((subtotal + cleaningFee) * 0.05);
+  const total = subtotal + cleaningFee + serviceFee;
+
+  const checkoutHref =
+    checkIn && checkOut && nights >= property.minNights
+      ? `/checkout/${property._id}?checkIn=${toDateString(checkIn)}&checkOut=${toDateString(checkOut)}&guests=${guests}`
+      : null;
+
+  const reserveDisabled = !checkoutHref || guests > property.maxGuests;
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-6">
@@ -122,11 +154,15 @@ export function PropertyDetailClient({ property }: { property: Doc<"properties">
           <Separator />
 
           <div>
-            <h2 className="text-lg font-semibold mb-3">Availability</h2>
-            <p className="text-sm text-muted-foreground mb-4">Select dates to check availability.</p>
+            <h2 className="text-lg font-semibold mb-3">Select dates</h2>
+            <p className="text-sm text-muted-foreground mb-4">
+              Minimum stay: {property.minNights} night{property.minNights !== 1 ? "s" : ""}.
+            </p>
             <DayPicker
               mode="range"
-              disabled={{ before: new Date() }}
+              selected={range}
+              onSelect={setRange}
+              disabled={[{ before: new Date() }, ...disabledDates]}
               className="border rounded-xl p-4"
             />
           </div>
@@ -182,33 +218,82 @@ export function PropertyDetailClient({ property }: { property: Doc<"properties">
 
             <Separator />
 
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">{formatCents(property.pricePerNight)} × 1 night</span>
-                <span>{formatCents(property.pricePerNight)}</span>
+            {/* Date summary */}
+            <div className="grid grid-cols-2 gap-2 text-sm">
+              <div className="rounded-lg border p-3">
+                <p className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Check-in</p>
+                <p className="font-medium">{checkIn ? toDateString(checkIn) : "—"}</p>
               </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Cleaning fee</span>
-                <span>{formatCents(property.cleaningFee)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Service fee</span>
-                <span>{formatCents(serviceFee)}</span>
-              </div>
-              <Separator />
-              <div className="flex justify-between font-semibold">
-                <span>Total</span>
-                <span>{formatCents(total)}</span>
+              <div className="rounded-lg border p-3">
+                <p className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Check-out</p>
+                <p className="font-medium">{checkOut ? toDateString(checkOut) : "—"}</p>
               </div>
             </div>
 
-            <Button className="w-full" size="lg" asChild>
-              <a href={`/checkout/${property._id}`}>Reserve</a>
-            </Button>
+            {/* Guest counter */}
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium">Guests</span>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline" size="icon" className="h-8 w-8"
+                  onClick={() => setGuests((g) => Math.max(1, g - 1))}
+                  disabled={guests <= 1}
+                >
+                  <Minus className="h-3 w-3" />
+                </Button>
+                <span className="w-6 text-center text-sm font-medium">{guests}</span>
+                <Button
+                  variant="outline" size="icon" className="h-8 w-8"
+                  onClick={() => setGuests((g) => Math.min(property.maxGuests, g + 1))}
+                  disabled={guests >= property.maxGuests}
+                >
+                  <Plus className="h-3 w-3" />
+                </Button>
+              </div>
+            </div>
 
-            <p className="text-center text-xs text-muted-foreground">
-              Booking available in Phase 4
-            </p>
+            {/* Pricing breakdown — only shown when dates selected */}
+            {nights > 0 && (
+              <div className="space-y-2 text-sm">
+                <Separator />
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">{formatCents(property.pricePerNight)} × {nights} night{nights !== 1 ? "s" : ""}</span>
+                  <span>{formatCents(subtotal)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Cleaning fee</span>
+                  <span>{formatCents(property.cleaningFee)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Service fee (5%)</span>
+                  <span>{formatCents(serviceFee)}</span>
+                </div>
+                <Separator />
+                <div className="flex justify-between font-semibold">
+                  <span>Total</span>
+                  <span>{formatCents(total)}</span>
+                </div>
+              </div>
+            )}
+
+            {checkoutHref ? (
+              <Link
+                href={checkoutHref}
+                className={buttonVariants({ size: "lg", className: "w-full justify-center" })}
+              >
+                Reserve
+              </Link>
+            ) : (
+              <Button className="w-full" size="lg" disabled={reserveDisabled}>
+                {!checkIn || !checkOut
+                  ? "Select dates"
+                  : nights < property.minNights
+                    ? `Minimum ${property.minNights} nights`
+                    : "Reserve"}
+              </Button>
+            )}
+
+            <p className="text-center text-xs text-muted-foreground">You won&apos;t be charged yet</p>
           </div>
         </div>
       </div>
