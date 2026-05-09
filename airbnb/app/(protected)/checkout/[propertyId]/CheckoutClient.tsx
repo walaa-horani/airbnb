@@ -64,7 +64,7 @@ function PaymentForm({ bookingId, amount }: { bookingId: Id<"bookings">; amount:
 
   return (
     <div className="space-y-4">
-      <PaymentElement />
+      <PaymentElement options={{ wallets: { link: "never" } }} />
       {error && (
         <p className="text-sm text-red-600 rounded-lg bg-red-50 border border-red-200 p-3">{error}</p>
       )}
