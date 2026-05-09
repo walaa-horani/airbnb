@@ -6,7 +6,7 @@ import { UserButton } from "@clerk/nextjs";
 import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { PlusCircle, LayoutList, Plane, Search } from "lucide-react";
+import { PlusCircle, LayoutList, Plane, Search, Calendar } from "lucide-react";
 
 function AuthenticatedNav() {
   const user = useQuery(api.users.getCurrentUser);
@@ -26,6 +26,13 @@ function AuthenticatedNav() {
       >
         <LayoutList className="h-4 w-4" />
         My listings
+      </Link>
+      <Link
+        href="/host/bookings"
+        className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+      >
+        <Calendar className="h-4 w-4" />
+        Reservations
       </Link>
       <Button size="sm" variant="outline" className="cursor-pointer" asChild>
         <Link href="/host/properties/new" className="flex items-center justify-center">
